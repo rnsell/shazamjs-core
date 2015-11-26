@@ -1,0 +1,23 @@
+{
+  "name": "shazamjs-core",
+  "version": "1.0.0",
+  "description": "Creates a socket.io application to communicate across all applications.",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha ./lib/**/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rnsell/shazamjs-core.git"
+  },
+  "author": "rnsell",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rnsell/shazamjs-core/issues"
+  },
+  "homepage": "https://github.com/rnsell/shazamjs-core#readme",
+  "dependencies": {
+    "express": "^4.13.3",
+    "socket.io": "^1.3.7"
+  }
+}

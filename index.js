@@ -5,7 +5,8 @@
 
 var ShazamAppClass = require("./lib/shazam.app.class.js"),
   app = require("express")(),
-  io = require('socket.io')(80),
+  port = process.env.PORT || 8080,
+  io = require('socket.io')(port),
   pwd = "123456789",
   WEBSITEAPP = "WebsiteApp",
   DESKTOPAPP = "DesktopApp",

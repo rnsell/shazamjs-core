@@ -45,19 +45,19 @@ function incrementShazamState(msgSource) {
   }
 
   if (msgSource.lastEventSource === DESKTOPAPP && allApps.desktopApp.enabled) {
-    allApps.websiteApp.count += 1;
+    allApps.desktopApp.count += 1;
   }
 
   if (msgSource.lastEventSource === HARDWAREAPP && allApps.hardwareApp.enabled) {
-    allApps.websiteApp.count += 1;
+    allApps.hardwareApp.count += 1;
   }
 
   if (msgSource.lastEventSource === CONSOLEAPP && allApps.consoleApp.enabled) {
-    allApps.websiteApp.count += 1;
+    allApps.consoleApp.count += 1;
   }
 
   if (msgSource.lastEventSource === MOBILEAPP && allApps.mobileApp.enabled) {
-    allApps.websiteApp.count += 1;
+    allApps.mobileApp.count += 1;
   }
 }
 

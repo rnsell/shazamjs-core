@@ -4,10 +4,12 @@
 
 
 var ShazamAppClass = require("./lib/shazam.app.class.js"),
-  app = require("express")(),
+  app = require('express')(),
+  server = require('http').Server(app),
+  io = require('socket.io')(server),
   port = process.env.PORT || 8080,
-  io = require('socket.io')(port),
   pwd = "123456789",
+  connections = 0,
   WEBSITEAPP = "WebsiteApp",
   DESKTOPAPP = "DesktopApp",
   HARDWAREAPP = "HardwareApp",
@@ -19,12 +21,22 @@ var ShazamAppClass = require("./lib/shazam.app.class.js"),
 allApps[COREAPP] = new ShazamAppClass("CoreApp", "Node application written using Express.", true, true, "http://i.imgur.com/dzL0XOD.jpg", "https://twitter.com/thesteveorlando/status/658762258609229825/photo/1", "http://i.imgur.com/RB9eM2j.jpg", "http://www.geeksofdoom.com/2012/03/06/hey-everybody-heres-the-first-look-at-dcs-shazam");
 allApps[WEBSITEAPP] = new ShazamAppClass("Website", "Node application written using Express.", true, true, "http://i.imgur.com/dzL0XOD.jpg", "https://twitter.com/thesteveorlando/status/658762258609229825/photo/1", "http://i.imgur.com/RB9eM2j.jpg", "http://www.geeksofdoom.com/2012/03/06/hey-everybody-heres-the-first-look-at-dcs-shazam");
 allApps[DESKTOPAPP] = new ShazamAppClass("Desktop", "Node application written using Electron.", true, true, "http://i.imgur.com/dzL0XOD.jpg", "ttps://twitter.com/thesteveorlando/status/658762258609229825/photo/1", "http://i.imgur.com/RB9eM2j.jpg", "http://www.geeksofdoom.com/2012/03/06/hey-everybody-heres-the-first-look-at-dcs-shazam");
-allApps[HARDWAREAPP] = new ShazamAppClass("Hardware", "Node application written using Johnny Five.", true, true, "http://i.imgur.com/dzL0XOD.jpg", "ttps://twitter.com/thesteveorlando/status/658762258609229825/photo/1", "http://i.imgur.com/RB9eM2j.jpg", "http://www.geeksofdoom.com/2012/03/06/hey-everybody-heres-the-first-look-at-dcs-shazam");
-allApps[CONSOLEAPP] = new ShazamAppClass("Console", "Node console application.", true, true, "http://i.imgur.com/dzL0XOD.jpg", "ttps://twitter.com/thesteveorlando/status/658762258609229825/photo/1", "http://i.imgur.com/RB9eM2j.jpg", "http://www.geeksofdoom.com/2012/03/06/hey-everybody-heres-the-first-look-at-dcs-shazam");
-allApps[MOBILEAPP] = new ShazamAppClass("Mobile", "Mobile application using Ionic/Cordova.", true, true, "http://i.imgur.com/dzL0XOD.jpg", "ttps://twitter.com/thesteveorlando/status/658762258609229825/photo/1", "http://i.imgur.com/RB9eM2j.jpg", "http://www.geeksofdoom.com/2012/03/06/hey-everybody-heres-the-first-look-at-dcs-shazam");
+allApps[HARDWAREAPP] = new ShazamAppClass("Hardware", "Node application written using Johnny Five.", true, true, "http://i.imgur.com/dzL0XOD.jpg", "https://twitter.com/thesteveorlando/status/658762258609229825/photo/1", "http://i.imgur.com/RB9eM2j.jpg", "http://www.geeksofdoom.com/2012/03/06/hey-everybody-heres-the-first-look-at-dcs-shazam");
+allApps[CONSOLEAPP] = new ShazamAppClass("Console", "Node console application.", true, true, "http://i.imgur.com/dzL0XOD.jpg", "https://twitter.com/thesteveorlando/status/658762258609229825/photo/1", "http://i.imgur.com/RB9eM2j.jpg", "http://www.geeksofdoom.com/2012/03/06/hey-everybody-heres-the-first-look-at-dcs-shazam");
+allApps[MOBILEAPP] = new ShazamAppClass("Mobile", "Mobile application using Ionic/Cordova.", true, true, "http://i.imgur.com/dzL0XOD.jpg", "https://twitter.com/thesteveorlando/status/658762258609229825/photo/1", "http://i.imgur.com/RB9eM2j.jpg", "http://www.geeksofdoom.com/2012/03/06/hey-everybody-heres-the-first-look-at-dcs-shazam");
 allApps.isBilly = true;
 allApps.lastEventSource = COREAPP;
 
+server.listen(port, function () {
+  console.log("Listening on port " + port);
+});
+
+
+app.use("/", function (request, response) {
+  response.send({
+    message: "server running."
+  });
+});
 
 function incrementShazamState(msgSource) {
   //Iterate the event counter  for everything
@@ -59,32 +71,29 @@ function setShazamState(newShazamState) {
   allApps.lastEventSource = newShazamState.lastEventSource || allApps.lastEventSource;
 }
 
+
+function transform() {
+  console.log("Transform emitted");
+  io.emit("Transform!", allApps);
+}
+
 io.on("connection", function (socket) {
-  console.log("Someone connected");
 
-  function refresh() {
-    console.log("Refresh emitted");
-    socket.emit("Refresh!", allApps);
-  }
-
-  function transform() {
-    console.log("Transform emitted");
-    socket.emit("Transform!", allApps);
-  }
+  connections = connections + 1;
+  console.log("User connected. Number of connections: " + connections);
 
   //Respond to new events with a refresh.
   socket.on("WhatAmI!", function () {
-    console.log("WhatAmI!");
-    refresh();
+    socket.emit("Refresh!", allApps);
   });
 
   //Set the current state
-  socket.on("Admin!", function (msg) {
-    if (msg.pwd === pwd) {
-      setShazamState(msg.appState);
-      refresh();
-    }
-  });
+  // socket.on("Admin!", function (msg) {
+  //   if (msg.pwd === pwd) {
+  //     setShazamState(msg.appState);
+  //     refresh();
+  //   }
+  // });
 
   //Flip status of billy, increment counters, refresh
   socket.on("Shazam!", function (msg) {
@@ -106,9 +115,11 @@ io.on("connection", function (socket) {
     transform();
   });
 
+
   //Output something to console on disconnect
   socket.on('disconnect', function () {
-    console.log('user disconnected');
+    connections = connections - 1;
+    console.log("User disconnected. Number of connections: " + connections);
   });
 
 });

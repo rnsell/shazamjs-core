@@ -38,29 +38,6 @@ app.use("/", function (request, response) {
   });
 });
 
-function incrementShazamState(msgSource) {
-  //Iterate the event counter  for everything
-  if (msgSource.lastEventSource === WEBSITEAPP && allApps.websiteApp.enabled) {
-    allApps.websiteApp.count += 1;
-  }
-
-  if (msgSource.lastEventSource === DESKTOPAPP && allApps.desktopApp.enabled) {
-    allApps.desktopApp.count += 1;
-  }
-
-  if (msgSource.lastEventSource === HARDWAREAPP && allApps.hardwareApp.enabled) {
-    allApps.hardwareApp.count += 1;
-  }
-
-  if (msgSource.lastEventSource === CONSOLEAPP && allApps.consoleApp.enabled) {
-    allApps.consoleApp.count += 1;
-  }
-
-  if (msgSource.lastEventSource === MOBILEAPP && allApps.mobileApp.enabled) {
-    allApps.mobileApp.count += 1;
-  }
-}
-
 function setShazamState(newShazamState) {
   allApps[WEBSITEAPP] = newShazamState[WEBSITEAPP];
   allApps[DESKTOPAPP] = newShazamState[DESKTOPAPP];
@@ -97,24 +74,22 @@ io.on("connection", function (socket) {
 
   //Flip status of billy, increment counters, refresh
   socket.on("Shazam!", function (msg) {
-    // console.log("Shazam!");
-    //Alternate Billy
-    allApps.isBilly = !(allApps.isBilly);
+    var lastEventSource = msg.location;
 
-    //Record the Event Source
-    allApps.lastEventSource = msg.location;
+    if (allApps[lastEventSource].enabled) {
+      //Billy transformed
+      allApps.isBilly = !(allApps.isBilly);
 
-    //Increment the counter if its enabled
-    incrementShazamState(msg.location);
+      //Record the Event Source
+      allApps.lastEventSource = msg.location;
 
-    //save state to db
+      //Increment the counter
+      allApps[lastEventSource].count += 1;
 
-
-    //Cause all applications to transform
-    // console.log(allApps);
-    transform();
+      //Transform
+      transform();
+    }
   });
-
 
   //Output something to console on disconnect
   socket.on('disconnect', function () {

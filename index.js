@@ -64,7 +64,7 @@ io.on("connection", function (socket) {
   });
 
   //Respond to new events with a refresh.
-  socket.on("WhoAmI?", function () {
+  socket.on("Who am I?", function () {
     socket.emit("Refresh!", allApps);
   });
 

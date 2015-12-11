@@ -33,16 +33,14 @@ function transform() {
 }
 
 //shazam process to transform
-function shazam(msg) {
+function onShazam(msg) {
   var lastEventSource = msg.location;
 
   if (allApps[lastEventSource].enabled) {
     //Billy transformed
     allApps.isBilly = !(allApps.isBilly);
-
     //Record the Event Source
     allApps.lastEventSource = msg.location;
-
     //Increment the counter
     allApps[lastEventSource].count += 1;
 
@@ -51,6 +49,9 @@ function shazam(msg) {
   }
 }
 
+function onAdminUpdate(msg){
+
+}
 
 io.on("connection", function (socket) {
 
@@ -68,8 +69,9 @@ io.on("connection", function (socket) {
     socket.emit("Refresh!", allApps);
   });
 
+  socket.on("Admin Update", onAdminUpdate);
   //Flip status of billy, increment counters, refresh
-  socket.on("Shazam!", shazam);
+  socket.on("Shazam!", onShazam);
 });
 
 

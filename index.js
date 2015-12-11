@@ -5,6 +5,7 @@
 
 var ShazamAppClass = require("./lib/shazam.app.class.js"),
   ShazamAppState = require("./lib/shazam.appstate.js"),
+  adminPwd = require("./lib/env.js"),
   app = require('express')(),
   server = require('http').Server(app),
   io = require('socket.io')(server),
@@ -32,6 +33,9 @@ function transform() {
   io.emit("Transform!", allApps);
 }
 
+function refresh(){
+  io.emit("Refresh!", allApps);
+}
 //shazam process to transform
 function onShazam(msg) {
   var lastEventSource = msg.location;
@@ -50,7 +54,26 @@ function onShazam(msg) {
 }
 
 function onAdminUpdate(msg){
+  var newState = msg.appState;
 
+  newState.coreApp.count = allApps.coreApp.count;
+  newState.websiteApp.count = allApps.websiteApp.count;
+  newState.desktopApp.count = allApps.desktopApp.count;
+  newState.hardwareApp.count = allApps.hardwareApp.count;
+  newState.consoleApp.count = allApps.consoleApp.count;
+  newState.mobileApp.count = allApps.mobileApp.count;
+
+  if(msg.pwd === adminPwd){
+    //Depending on when the socket is handled it may not have the corrent counts
+    newState.coreApp.count = allApps.coreApp.count;
+    newState.websiteApp.count = allApps.websiteApp.count;
+    newState.desktopApp.count = allApps.desktopApp.count;
+    newState.hardwareApp.count = allApps.hardwareApp.count;
+    newState.consoleApp.count = allApps.consoleApp.count;
+    newState.mobileApp.count = allApps.mobileApp.count;
+    allApps = newState;
+    refresh();
+  }
 }
 
 io.on("connection", function (socket) {
@@ -63,6 +86,9 @@ io.on("connection", function (socket) {
     connections = connections - 1;
     console.log("User disconnected. Number of connections: " + connections);
   });
+
+
+  socket.on("Admin Update", onAdminUpdate);
 
   //Respond to new events with a refresh.
   socket.on("Who am I?", function () {

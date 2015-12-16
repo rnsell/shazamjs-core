@@ -4,7 +4,8 @@
   "description": "Creates a socket.io application to communicate across all applications.",
   "main": "index.js",
   "scripts": {
-    "test": "mocha ./lib/**/*.test.js"
+    "test": "mocha ./lib/**/*.test.js",
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",

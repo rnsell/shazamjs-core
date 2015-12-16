@@ -1,17 +1,27 @@
 # shazamjs-core
 
-Each client establishes a connection to this socket server, any client can connected to the server as it is not password protected.
+## Run
+```
+node index.js
+```
+or use
+```
+npm start
+```
+
+## Description
+Core application that powers shazamjs applications. Edit the admin password in /lib/env.js to change password from blank. Please note anyone can connect to this socket.io server an d the information is transmitted in plain http fashion. This application is not ment to demonstrate security, but show the applications of node on a variety of platforms.
 
 ## Client Implementation
 ### Clients need to handle the following events emitted by the server:
 ```
-socket-client.on("Refresh!", (currentAppState) => {//Handle the current appState});
+socket.on("Refresh!", (currentAppState) => {//Handle the current appState});
 ```
 
 On "Refresh!" the app state is transmitted to the client to update itself.
 
 ```
-socket-client.on("Transform!", (currentAppState) => {//Handle the current appState});
+socket.on("Transform!", (currentAppState) => {//Handle the current appState});
 ```
 On "Transform!" the app state is transmitted to the client to update itself, but it is expected the client does something special to signify the app state is changing state between Billy and Shazam.
 
